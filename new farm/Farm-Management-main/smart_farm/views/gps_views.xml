@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List View -->
+    <record id="view_smart_farm_gps_list" model="ir.ui.view">
+        <field name="name">smart.farm.gps.list</field>
+        <field name="model">smart.farm.gps</field>
+        <field name="arch" type="xml">
+            <list string="GPS &amp; Vị trí" default_order="timestamp desc">
+                <field name="timestamp"/>
+                <field name="name"/>
+                <field name="device_type"/>
+                <field name="latitude"/>
+                <field name="longitude"/>
+                <field name="notes"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_smart_farm_gps_form" model="ir.ui.view">
+        <field name="name">smart.farm.gps.form</field>
+        <field name="model">smart.farm.gps</field>
+        <field name="arch" type="xml">
+            <form string="Vị trí GPS">
+                <sheet>
+                    <group>
+                        <group string="Thông tin thiết bị">
+                            <field name="name"/>
+                            <field name="device_type"/>
+                            <field name="timestamp"/>
+                        </group>
+                        <group string="Tọa độ">
+                            <field name="latitude"/>
+                            <field name="longitude"/>
+                        </group>
+                    </group>
+                    <group string="Ghi chú">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_smart_farm_gps_search" model="ir.ui.view">
+        <field name="name">smart.farm.gps.search</field>
+        <field name="model">smart.farm.gps</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm GPS">
+                <field name="name"/>
+                <field name="device_type"/>
+                <filter string="Điện thoại" name="phone" domain="[('device_type','=','phone')]"/>
+                <filter string="Máy kéo" name="tractor" domain="[('device_type','=','tractor')]"/>
+                <group expand="0" string="Nhóm theo">
+                    <filter string="Loại thiết bị" name="group_device" context="{'group_by': 'device_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

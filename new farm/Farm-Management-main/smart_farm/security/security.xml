@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        
+        <!-- Định nghĩa Danh mục Module (Category) -->
+        <record id="module_category_smart_farm" model="ir.module.category">
+            <field name="name">Smart Farm Management</field>
+            <field name="description">Quản lý phân quyền cho ứng dụng Smart Farm</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <!-- Nhóm User: Nhân viên / Nông dân -->
+        <record id="group_smart_farm_user" model="res.groups">
+            <field name="name">Nhân viên (User)</field>
+            <field name="category_id" ref="module_category_smart_farm"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Quyền cơ bản: Xem dữ liệu, báo cáo cảnh báo, gửi GPS. Không được xóa.</field>
+        </record>
+
+        <!-- Nhóm Admin: Quản lý trang trại -->
+        <record id="group_smart_farm_admin" model="res.groups">
+            <field name="name">Quản lý (Admin)</field>
+            <field name="category_id" ref="module_category_smart_farm"/>
+            <field name="implied_ids" eval="[(4, ref('group_smart_farm_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+            <field name="comment">Toàn quyền: Đọc, Ghi, Tạo, Xóa mọi dữ liệu trong hệ thống.</field>
+        </record>
+
+    </data>
+</odoo>

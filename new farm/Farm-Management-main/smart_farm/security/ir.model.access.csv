@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_smart_farm_gps_user,smart.farm.gps.user,model_smart_farm_gps,group_smart_farm_user,1,1,1,0
+access_smart_farm_gps_admin,smart.farm.gps.admin,model_smart_farm_gps,group_smart_farm_admin,1,1,1,1
+access_smart_farm_weather_user,smart.farm.weather.user,model_smart_farm_weather,group_smart_farm_user,1,0,0,0
+access_smart_farm_weather_admin,smart.farm.weather.admin,model_smart_farm_weather,group_smart_farm_admin,1,1,1,1
+access_smart_farm_alert_user,smart.farm.alert.user,model_smart_farm_alert,group_smart_farm_user,1,1,1,0
+access_smart_farm_alert_admin,smart.farm.alert.admin,model_smart_farm_alert,group_smart_farm_admin,1,1,1,1

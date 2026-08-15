@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Dashboard action -->
+    <record id="action_smart_farm_dashboard" model="ir.actions.act_url">
+        <field name="name">Tổng quan</field>
+        <field name="url">/smart_farm/dashboard</field>
+        <field name="target">self</field>
+    </record>
+
+    <!-- Menu dashboard (đặt lên đầu) -->
+    <menuitem
+        id="menu_smart_farm_dashboard"
+        name="Tổng quan"
+        parent="menu_smart_farm_root"
+        action="action_smart_farm_dashboard"
+        sequence="1"
+    />
+
+    <!-- QWeb Template -->
+    <template id="dashboard_main" name="Smart Farm Dashboard">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Tổng quan trang trại</title>
+                <link rel="stylesheet" href="/smart_farm/static/src/css/dashboard.css?v=6"/>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            </head>
+            <body>
+                <div class="sf-wrap">
+                    <div class="sf-header">
+                        <div class="sf-title">Tổng quan trang trại</div>
+                        <div class="sf-sub">
+                            Cập nhật lúc
+                            <t t-esc="now.strftime('%H:%M')"/> —
+                            <t t-esc="now.strftime('%d/%m/%Y')"/>
+                        </div>
+                    </div>
+
+                    <div class="sf-stats">
+                        <div class="sf-stat">
+                            <div class="sf-stat-label">Diện tích canh tác</div>
+                            <div class="sf-stat-val">12.4 <span style="font-size:16px;font-weight:400;color:#5f5e5a;">ha</span></div>
+                            <div class="sf-stat-sub ok">3 khu vực đang canh tác</div>
+                        </div>
+                        <div class="sf-stat">
+                            <div class="sf-stat-label">Bản ghi GPS</div>
+                            <div class="sf-stat-val"><t t-esc="len(gps_records)"/></div>
+                            <div class="sf-stat-sub ok">Gần nhất hôm nay</div>
+                        </div>
+                        <div class="sf-stat">
+                            <div class="sf-stat-label">Nhiệt độ hiện tại</div>
+                            <div class="sf-stat-val">
+                                <t t-esc="weather['temperature']"/>
+                                <span style="font-size:16px;font-weight:400;color:#5f5e5a;">°C</span>
+                            </div>
+                            <div class="sf-stat-sub ok">Độ ẩm <t t-esc="weather['humidity']"/>%</div>
+                        </div>
+                        <div class="sf-stat">
+                            <div class="sf-stat-label">Cảnh báo chưa xử lý</div>
+                            <div class="sf-stat-val"><t t-esc="unresolved_count"/></div>
+                            <div t-attf-class="sf-stat-sub #{unresolved_count > 0 and 'warn' or 'ok'}">
+                                <t t-if="unresolved_count > 0">Cần xử lý</t>
+                                <t t-else="">Tất cả đã xử lý</t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bản đồ Tương tác -->
+                    <div class="sf-card sf-map-card">
+                        <div class="sf-card-hd">
+                            <div class="sf-card-title">Bản đồ Nông trại (Tương tác trực tiếp)</div>
+                            <span class="badge-live">Live</span>
+                        </div>
+                        <div class="sf-map-container">
+                            <!-- Ảnh nền -->
+                            <img src="/smart_farm/static/src/img/farm_map.jpg?v=2" class="sf-map-img" alt="Farm Map"/>
+                            
+                            <!-- Zone A (Left) -->
+                            <div class="sf-map-zone zone-a" title="Khu A - Nhà màng">
+                                <div class="sf-map-tooltip">
+                                    <div class="sf-map-tt-title">KHU A (Nhà màng)</div>
+                                    <div class="sf-map-tt-val" style="color:#639922;"><t t-esc="soil['moisture_a']"/>%</div>
+                                    <div class="sf-map-tt-sub">Độ ẩm đất bề mặt</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Zone B (Center) -->
+                            <div class="sf-map-zone zone-b" title="Khu B - Đất mở">
+                                <div class="sf-map-tooltip">
+                                    <div class="sf-map-tt-title">KHU B (Đất mở)</div>
+                                    <div class="sf-map-tt-val" style="color:#BA7517;"><t t-esc="soil['moisture_b']"/>%</div>
+                                    <div class="sf-map-tt-sub">Độ ẩm đất trung bình</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Zone C (Right) -->
+                            <div class="sf-map-zone zone-c" title="Khu C - Hồ &amp; Vườn">
+                                <div class="sf-map-tooltip">
+                                    <div class="sf-map-tt-title">KHU C (Hồ chứa)</div>
+                                    <div class="sf-map-tt-val" style="color:#185FA5;"><t t-esc="soil['moisture_c']"/>%</div>
+                                    <div class="sf-map-tt-sub">Độ ẩm ngậm nước</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sf-grid3">
+                        <div class="sf-card">
+                            <div class="sf-card-hd">
+                                <div class="sf-card-title">Thời tiết</div>
+                                <span class="badge-live">
+                                    <t t-if="weather['source'] == 'live'">Trực tiếp</t>
+                                    <t t-elif="weather['source'] == 'db'">Từ DB</t>
+                                    <t t-else="">Mẫu</t>
+                                </span>
+                            </div>
+                            <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:12px;">
+                                <div class="sf-temp"><t t-esc="weather['temperature']"/><sup>°C</sup></div>
+                                <div class="sf-weather-info">
+                                    Gió: <t t-esc="weather['windspeed']"/> km/h<br/>
+                                    Độ ẩm: <t t-esc="weather['humidity']"/>%<br/>
+                                    TP. Hồ Chí Minh
+                                </div>
+                            </div>
+                            <div class="sf-forecast">
+                                <div class="sf-fc-day"><div class="sf-fc-label">Hôm nay</div><div class="sf-fc-temp"><t t-esc="weather['temperature']"/>°</div></div>
+                                <div class="sf-fc-day"><div class="sf-fc-label">Ngày mai</div><div class="sf-fc-temp">29°</div></div>
+                                <div class="sf-fc-day"><div class="sf-fc-label">Ngày kia</div><div class="sf-fc-temp">28°</div></div>
+                                <div class="sf-fc-day"><div class="sf-fc-label">Sau đó</div><div class="sf-fc-temp">30°</div></div>
+                            </div>
+                        </div>
+
+                        <div class="sf-card">
+                            <div class="sf-card-hd">
+                                <div class="sf-card-title">Cảnh báo &amp; Log</div>
+                                <span class="badge-live">Từ Odoo</span>
+                            </div>
+                            <t t-if="alerts">
+                                <t t-foreach="alerts" t-as="alert">
+                                    <div class="sf-alert-item">
+                                        <div t-attf-class="sf-alert-dot dot-#{alert.alert_type}"></div>
+                                        <div>
+                                            <div t-attf-class="sf-alert-text #{alert.is_resolved and 'sf-resolved' or ''}">
+                                                <t t-esc="alert.name"/>
+                                            </div>
+                                            <div class="sf-alert-time">
+                                                <t t-esc="alert.timestamp.strftime('%H:%M')"/>
+                                                <t t-if="alert.area"> · <t t-esc="alert.area"/></t>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <div style="font-size:12px;color:#888780;padding:12px 0;text-align:center;">Chưa có cảnh báo nào</div>
+                            </t>
+                        </div>
+
+                        <div class="sf-card">
+                            <div class="sf-card-hd">
+                                <div class="sf-card-title">GPS &amp; Vị trí</div>
+                                <span class="badge-live">Từ Odoo</span>
+                            </div>
+                            <div class="sf-gps-map">
+                                <t t-if="gps_records">
+                                    <t t-foreach="gps_records" t-as="gps">
+                                        <div t-attf-class="sf-gps-pin #{gps_index % 2 == 0 and 'pin-green' or 'pin-blue'}"
+                                             t-attf-style="left:#{20 + gps_index * 18}%;top:#{25 + (gps_index % 2) * 35}%;"></div>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <span class="sf-no-data">Chưa có dữ liệu GPS</span>
+                                </t>
+                            </div>
+                            <t t-foreach="gps_records" t-as="gps">
+                                <div class="sf-gps-row">
+                                    <b><t t-esc="gps.name"/></b> —
+                                    <t t-esc="gps.latitude"/>, <t t-esc="gps.longitude"/>
+                                    <span style="float:right;color:#888780;"><t t-esc="gps.timestamp.strftime('%H:%M')"/></span>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <div class="sf-grid2">
+                        <div class="sf-card">
+                            <div class="sf-card-hd">
+                                <div class="sf-card-title">Cảm biến đất</div>
+                                <span class="badge-live">
+                                    <t t-if="soil['source'] == 'live'">Trực tiếp</t>
+                                    <t t-else="">Mẫu</t>
+                                </span>
+                            </div>
+                            <div class="sf-sensor-row">
+                                <div class="sf-sensor-name">Độ ẩm khu A</div>
+                                <div class="sf-sensor-val" style="color:#639922;"><t t-esc="soil['moisture_a']"/>%
+                                    <div class="sf-bar"><div class="sf-bar-fill" t-attf-style="width:#{soil['moisture_a']}%;background:#639922;"></div></div>
+                                </div>
+                            </div>
+                            <div class="sf-sensor-row">
+                                <div class="sf-sensor-name">Độ ẩm khu B</div>
+                                <div class="sf-sensor-val" style="color:#BA7517;"><t t-esc="soil['moisture_b']"/>%
+                                    <div class="sf-bar"><div class="sf-bar-fill" t-attf-style="width:#{soil['moisture_b']}%;background:#BA7517;"></div></div>
+                                </div>
+                            </div>
+                            <div class="sf-sensor-row">
+                                <div class="sf-sensor-name">Nhiệt độ đất</div>
+                                <div class="sf-sensor-val"><t t-esc="soil['temp']"/>°C
+                                    <div class="sf-bar"><div class="sf-bar-fill" t-attf-style="width:#{min(soil['temp']*2, 100)}%;background:#185FA5;"></div></div>
+                                </div>
+                            </div>
+                            <div class="sf-sensor-row">
+                                <div class="sf-sensor-name">Ánh sáng</div>
+                                <div class="sf-sensor-val"><t t-esc="'{:,}'.format(soil['lux'])"/> lux
+                                    <div class="sf-bar"><div class="sf-bar-fill" t-attf-style="width:#{min(soil['lux']/100, 100)}%;background:#BA7517;"></div></div>
+                                </div>
+                            </div>
+                            <div class="sf-sensor-row">
+                                <div class="sf-sensor-name">Độ ẩm khu C</div>
+                                <div class="sf-sensor-val" style="color:#639922;"><t t-esc="soil['moisture_c']"/>%
+                                    <div class="sf-bar"><div class="sf-bar-fill" t-attf-style="width:#{soil['moisture_c']}%;background:#639922;"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sf-card">
+                            <div class="sf-card-hd">
+                                <div class="sf-card-title">Công việc hôm nay</div>
+                                <span class="badge-demo">Demo</span>
+                            </div>
+                            <div class="sf-task">
+                                <div class="sf-check done">✓</div>
+                                <div class="sf-task-text done">Bật bơm tưới khu A lúc 6:00</div>
+                                <span class="sf-tag tag-blue">Tưới tiêu</span>
+                            </div>
+                            <div class="sf-task">
+                                <div class="sf-check done">✓</div>
+                                <div class="sf-task-text done">Kiểm tra cảm biến khu C</div>
+                                <span class="sf-tag tag-green">Cảm biến</span>
+                            </div>
+                            <div class="sf-task">
+                                <div class="sf-check done">✓</div>
+                                <div class="sf-task-text done">Ghi nhận GPS buổi sáng</div>
+                                <span class="sf-tag tag-green">GPS</span>
+                            </div>
+                            <div class="sf-task">
+                                <div class="sf-check"></div>
+                                <div class="sf-task-text">Bón phân khu B buổi chiều</div>
+                                <span class="sf-tag tag-amber">Mùa vụ</span>
+                            </div>
+                            <div class="sf-task">
+                                <div class="sf-check"></div>
+                                <div class="sf-task-text">Kiểm tra tồn kho phân bón</div>
+                                <span class="sf-tag tag-amber">Kho</span>
+                            </div>
+                            <div class="sf-task">
+                                <div class="sf-check"></div>
+                                <div class="sf-task-text">Cập nhật nhật ký thu hoạch</div>
+                                <span class="sf-tag tag-green">Báo cáo</span>
+                            </div>
+                            <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(0,0,0,.06);display:flex;justify-content:space-between;font-size:11px;color:#888780;">
+                                <span style="color:#639922;">✓ 3 hoàn thành</span>
+                                <span>3 còn lại</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Biểu đồ thống kê 24h -->
+                    <div class="sf-card" style="margin-top:20px;">
+                        <div class="sf-card-hd">
+                            <div class="sf-card-title">Biểu đồ Môi trường (24 giờ qua)</div>
+                            <span class="badge-live">Dữ liệu thực tế</span>
+                        </div>
+                        <div style="width:100%;height:300px;position:relative;">
+                            <canvas id="historyChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Data Store cho Javascript -->
+                    <div id="sf-chart-data" t-att-data-chart="chart_data_json" style="display:none;"></div>
+
+                    <div class="sf-footer">
+                        <b style="color:#1a1a18;">Chú thích:</b>
+                        <span class="badge-live">Từ Odoo / Trực tiếp</span>
+                        <span>Dữ liệu thực từ module</span>
+                        <span style="color:rgba(0,0,0,.2);">·</span>
+                        <span class="badge-demo">Demo</span>
+                        <span>Dữ liệu mẫu — sẽ phát triển thêm</span>
+                    </div>
+                </div>
+
+                <script src="/smart_farm/static/src/js/dashboard.js"></script>
+            </body>
+        </html>
+    </template>
+
+</odoo>

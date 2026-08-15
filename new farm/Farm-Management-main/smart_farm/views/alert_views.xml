@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List View -->
+    <record id="view_smart_farm_alert_list" model="ir.ui.view">
+        <field name="name">smart.farm.alert.list</field>
+        <field name="model">smart.farm.alert</field>
+        <field name="arch" type="xml">
+            <list string="Cảnh báo" default_order="timestamp desc"
+                  decoration-danger="alert_type == 'danger' and not is_resolved"
+                  decoration-warning="alert_type == 'warning' and not is_resolved"
+                  decoration-success="is_resolved"
+                  decoration-muted="is_resolved">
+                <field name="timestamp"/>
+                <field name="name"/>
+                <field name="alert_type"/>
+                <field name="area"/>
+                <field name="content"/>
+                <field name="is_resolved"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_smart_farm_alert_form" model="ir.ui.view">
+        <field name="name">smart.farm.alert.form</field>
+        <field name="model">smart.farm.alert</field>
+        <field name="arch" type="xml">
+            <form string="Cảnh báo">
+                <header>
+                    <button name="action_resolve" string="Đánh dấu đã xử lý"
+                            type="object" class="btn-primary"
+                            invisible="is_resolved"/>
+                    <field name="is_resolved" widget="statusbar"
+                           statusbar_visible="0,1"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Thông tin cảnh báo">
+                            <field name="name"/>
+                            <field name="alert_type"/>
+                            <field name="area"/>
+                            <field name="timestamp"/>
+                        </group>
+                        <group string="Trạng thái">
+                            <field name="is_resolved"/>
+                        </group>
+                    </group>
+                    <group string="Nội dung chi tiết">
+                        <field name="content" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_smart_farm_alert_search" model="ir.ui.view">
+        <field name="name">smart.farm.alert.search</field>
+        <field name="model">smart.farm.alert</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm cảnh báo">
+                <field name="name"/>
+                <field name="area"/>
+                <filter string="Chưa xử lý" name="unresolved" domain="[('is_resolved','=',False)]"/>
+                <filter string="Đã xử lý" name="resolved" domain="[('is_resolved','=',True)]"/>
+                <separator/>
+                <filter string="Nguy hiểm" name="danger" domain="[('alert_type','=','danger')]"/>
+                <filter string="Cảnh báo" name="warning" domain="[('alert_type','=','warning')]"/>
+                <group expand="0" string="Nhóm theo">
+                    <filter string="Mức độ" name="group_type" context="{'group_by': 'alert_type'}"/>
+                    <filter string="Khu vực" name="group_area" context="{'group_by': 'area'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

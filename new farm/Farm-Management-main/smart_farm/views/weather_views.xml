@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List View -->
+    <record id="view_smart_farm_weather_list" model="ir.ui.view">
+        <field name="name">smart.farm.weather.list</field>
+        <field name="model">smart.farm.weather</field>
+        <field name="arch" type="xml">
+            <list string="Dữ liệu thời tiết" default_order="timestamp desc">
+                <field name="timestamp"/>
+                <field name="name"/>
+                <field name="location"/>
+                <field name="temperature" string="Nhiệt độ (°C)"/>
+                <field name="windspeed" string="Gió (km/h)"/>
+                <field name="humidity" string="Độ ẩm (%)"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_smart_farm_weather_form" model="ir.ui.view">
+        <field name="name">smart.farm.weather.form</field>
+        <field name="model">smart.farm.weather</field>
+        <field name="arch" type="xml">
+            <form string="Thời tiết">
+                <sheet>
+                    <group>
+                        <group string="Thông tin chung">
+                            <field name="name"/>
+                            <field name="location"/>
+                            <field name="timestamp"/>
+                        </group>
+                        <group string="Chỉ số thời tiết">
+                            <field name="temperature"/>
+                            <field name="windspeed"/>
+                            <field name="humidity"/>
+                        </group>
+                    </group>
+                    <group string="Tọa độ trạm đo">
+                        <group>
+                            <field name="latitude"/>
+                        </group>
+                        <group>
+                            <field name="longitude"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_smart_farm_weather_search" model="ir.ui.view">
+        <field name="name">smart.farm.weather.search</field>
+        <field name="model">smart.farm.weather</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm thời tiết">
+                <field name="name"/>
+                <field name="location"/>
+                <group expand="0" string="Nhóm theo">
+                    <filter string="Vị trí" name="group_location" context="{'group_by': 'location'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

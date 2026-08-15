@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Action: GPS -->
+    <record id="action_smart_farm_gps" model="ir.actions.act_window">
+        <field name="name">GPS &amp; Vị trí</field>
+        <field name="res_model">smart.farm.gps</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Action: Thời tiết -->
+    <record id="action_smart_farm_weather" model="ir.actions.act_window">
+        <field name="name">Thời tiết</field>
+        <field name="res_model">smart.farm.weather</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Action: Cảnh báo -->
+    <record id="action_smart_farm_alert" model="ir.actions.act_window">
+        <field name="name">Cảnh báo</field>
+        <field name="res_model">smart.farm.alert</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu gốc -->
+    <menuitem
+        id="menu_smart_farm_root"
+        name="Smart Farm"
+        sequence="100"
+        web_icon="smart_farm,static/description/icon.png"
+    />
+
+    <!-- Menu con: GPS -->
+    <menuitem
+        id="menu_smart_farm_gps"
+        name="GPS &amp; Vị trí"
+        parent="menu_smart_farm_root"
+        action="action_smart_farm_gps"
+        sequence="10"
+    />
+
+    <!-- Menu con: Thời tiết -->
+    <menuitem
+        id="menu_smart_farm_weather"
+        name="Thời tiết"
+        parent="menu_smart_farm_root"
+        action="action_smart_farm_weather"
+        sequence="20"
+    />
+
+    <!-- Menu con: Cảnh báo -->
+    <menuitem
+        id="menu_smart_farm_alert"
+        name="Cảnh báo"
+        parent="menu_smart_farm_root"
+        action="action_smart_farm_alert"
+        sequence="30"
+    />
+
+</odoo>
